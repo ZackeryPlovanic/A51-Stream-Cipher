@@ -11,12 +11,12 @@
 using namespace std;
 
 int main() {
-    bool* keystream=NULL;
+    bool keystream[4];
     bool key[64];
-    for(int i =0;i<64;i++)  (i%2) ? key[i]=true : key[i]=false;
+    for(int i =0; i<64; i++)  (i%2) ? key[i] = true : key[i] = false;
 
     A51 cipher(key);
-    keystream=cipher.generateKeystream(4);
+    cipher.generateKeystream(keystream, 4);
 
     cout<<keystream[0]<<" "<<keystream[1]<<" "<<keystream[2]<<" "<<keystream[3];
     return 0;

@@ -8,23 +8,40 @@
 #include <iostream>
 using namespace std;
 
-A51::A51(bool key[64]){
+A51::A51(){
 
-   for(int i=0;i<64;i++){
-       if (i<20)        regX[i]=key[i];
-       else if (i<42)   regY[i-20]=key[i];
-       else             regZ[i-42]=key[i];
-   }
+}
+
+A51::A51(bool secret_key[64]){
+
+   infillRegisters(secret_key);
+}
+
+void A51::infillRegisters(bool secret_key[64]){
+    for(int i=0; i<64; i++){
+           if (i < regX_size)
+           {
+               regX[i] = secret_key[i];
+           }
+           else if (i < (regX_size+regY_size))
+           {
+               regY[i-regX_size] = secret_key[i];
+           }
+           else
+           {
+               regZ[i-(regX_size + regY_size)] = secret_key[i];
+           }
+       }
 }
 
 bool A51::calcMaj(){
-    int sum=0;
+    int sum = 0;
 
-    if(regX[majIndexX]) sum++;
-    if(regY[majIndexY]) sum++;
-    if(regZ[majIndexZ]) sum++;
+    if(regX[majority_Index_X]) sum++;
+    if(regY[majority_Index_Y]) sum++;
+    if(regZ[majority_Index_Z]) sum++;
 
-    if(sum>=2)  return(true);
+    if(sum >= 2)  return(true);
     else        return(false);
 }
 
@@ -44,25 +61,25 @@ void A51::rotateReg(){
 
     bool majority = calcMaj();
 
-    if(regX[majIndexX]==majority){
-        for(int i=19;i>=1;i--){
-            regX[i]=regX[i-1];      //shift right
+    if(regX[majority_Index_X] == majority){
+        for(int i=19; i>=1; i--){
+            regX[i] = regX[i-1];      //shift right
         }
-        regX[0]=rotateValX();       //rotate new value in
+        regX[0] = rotateValX();       //rotate new value in
     }//end if
 
-    if(regY[majIndexY]==majority){
-            for(int i=21;i>=1;i--){
-                regY[i]=regY[i-1];
+    if(regY[majority_Index_Y] == majority){
+            for(int i=21; i>=1; i--){
+                regY[i] = regY[i-1];
             }
-            regY[0]=rotateValY();
+            regY[0] = rotateValY();
         }//end if
 
-    if(regZ[majIndexZ]==majority){
-            for(int i=21;i>=1;i--){
-                regZ[i]=regZ[i-1];
+    if(regZ[majority_Index_Z] == majority){
+            for(int i=21; i>=1; i--){
+                regZ[i] = regZ[i-1];
             }
-            regZ[0]=rotateValZ();
+            regZ[0] = rotateValZ();
         }//end if
 
 }
@@ -72,14 +89,10 @@ bool A51::outputBit(){
     return ( regX[19]^regY[21]^regZ[21] );
 }
 
-bool* A51::generateKeystream(int sizeOfKeystream){
+void A51::generateKeystream(bool keystream[], int sizeOfKeystream){
 
-    bool* Keystream= new bool[sizeOfKeystream];
-
-    for(int i=0; i < sizeOfKeystream;i++){
-        Keystream[i]=outputBit();
+    for(int i=0; i < sizeOfKeystream; i++){
+        keystream[i] = outputBit();
         rotateReg();
     }
-
-    return (Keystream);
 }
